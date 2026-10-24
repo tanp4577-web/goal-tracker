@@ -1,5 +1,5 @@
 import pytest
-from app import app, goals, reset_goals, is_valid_title, add_goal
+from app import app, goals, reset_goals, is_valid_title, add_goal, load_goals
 
 
 @pytest.fixture(autouse=True)
@@ -31,6 +31,13 @@ def test_add_goal_stores_trimmed_title(title, expected_title):
     goal = add_goal(title, "demo")
     assert goal["title"] == expected_title
     assert goal["id"] == 1
+
+
+def test_goal_is_saved_persistently():
+    add_goal("Persistent goal", "keep this")
+    assert load_goals() == [
+        {"id": 1, "title": "Persistent goal", "description": "keep this"}
+    ]
 
 
 def test_add_goal_rejects_empty_title():

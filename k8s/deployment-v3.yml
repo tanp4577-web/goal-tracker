@@ -23,7 +23,17 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          env:
+            - name: GOAL_TRACKER_DB
+              value: /data/goals.sqlite3
           readinessProbe:
             httpGet:
               path: /health
               port: 5000
+          volumeMounts:
+            - name: goal-data
+              mountPath: /data
+      volumes:
+        - name: goal-data
+          persistentVolumeClaim:
+            claimName: goal-v3-data

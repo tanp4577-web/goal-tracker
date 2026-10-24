@@ -1,6 +1,6 @@
 import pytest
 from app import (app, reset_goals, add_goal, update_goal, find_goal, parse_progress,
-                 status_for_progress, build_summary)
+                 status_for_progress, build_summary, load_goals)
 
 
 @pytest.fixture(autouse=True)
@@ -46,6 +46,21 @@ def test_update_goal_sets_progress_status_and_deadline():
     assert updated["progress"] == 60
     assert updated["status"] == "In Progress"
     assert updated["deadline"] == "2026-11-30"
+
+
+def test_goal_and_progress_are_saved_persistently():
+    goal = add_goal("Persistent goal")
+    update_goal(goal["id"], "Persistent goal", "saved", "2026-11-30", "60")
+    assert load_goals() == [
+        {
+            "id": 1,
+            "title": "Persistent goal",
+            "description": "saved",
+            "deadline": "2026-11-30",
+            "progress": 60,
+            "status": "In Progress",
+        }
+    ]
 
 
 def test_invalid_progress_changes_nothing():

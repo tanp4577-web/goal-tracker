@@ -4,3 +4,6 @@ venv/
 .venv/
 .pytest_cache/
 test-results.xml
+**/instance/*.sqlite3
+**/instance/*.sqlite3-shm
+**/instance/*.sqlite3-wal

@@ -1,18 +1,56 @@
+from contextlib import contextmanager
+import os
+import sqlite3
+from pathlib import Path
+
 from flask import Flask, request, redirect, url_for, render_template
 
 app = Flask(__name__)
 
 VERSION = "v1"
 FEATURES = "Add Goal"
-goals = []
-next_id = 1
+DATABASE = Path(os.environ.get("GOAL_TRACKER_DB", Path(__file__).parent / "instance" / "goals.sqlite3"))
+DATABASE.parent.mkdir(parents=True, exist_ok=True)
+
+
+@contextmanager
+def connect_db():
+    connection = sqlite3.connect(DATABASE)
+    connection.row_factory = sqlite3.Row
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+
+
+def load_goals():
+    with connect_db() as connection:
+        connection.execute(
+            """CREATE TABLE IF NOT EXISTS goals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                description TEXT NOT NULL
+            )"""
+        )
+        rows = connection.execute(
+            "SELECT id, title, description FROM goals ORDER BY id"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+goals = load_goals()
 
 
 def reset_goals():
     """Clear all goals (used by the tests)."""
-    global next_id
     goals.clear()
-    next_id = 1
+    with connect_db() as connection:
+        connection.execute("DELETE FROM goals")
+        connection.execute("DELETE FROM sqlite_sequence WHERE name = 'goals'")
 
 
 def is_valid_title(title):
@@ -22,11 +60,19 @@ def is_valid_title(title):
 
 def add_goal(title, description=""):
     """Create a goal and store it. Raises ValueError for an empty title."""
-    global next_id
     if not is_valid_title(title):
         raise ValueError("title is required")
-    goals.append({"id": next_id, "title": title.strip(), "description": description.strip()})
-    next_id += 1
+    with connect_db() as connection:
+        cursor = connection.execute(
+            "INSERT INTO goals (title, description) VALUES (?, ?)",
+            (title.strip(), description.strip()),
+        )
+        goal = {
+            "id": cursor.lastrowid,
+            "title": title.strip(),
+            "description": description.strip(),
+        }
+    goals.append(goal)
     return goals[-1]
 
 
@@ -51,4 +97,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))

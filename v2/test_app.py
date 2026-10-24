@@ -1,6 +1,6 @@
 import pytest
 from app import (app, reset_goals, is_valid_title, add_goal, update_goal,
-                 find_goal, STATUSES)
+                 find_goal, load_goals, STATUSES)
 
 
 @pytest.fixture(autouse=True)
@@ -25,6 +25,19 @@ def test_is_valid_title(title, expected):
 
 def test_new_goal_starts_as_not_started():
     assert add_goal("Learn Kubernetes")["status"] == "Not Started"
+
+
+def test_goal_and_edits_are_saved_persistently():
+    goal = add_goal("Persistent goal", "before")
+    update_goal(goal["id"], "Persistent goal", "after", "In Progress")
+    assert load_goals() == [
+        {
+            "id": 1,
+            "title": "Persistent goal",
+            "description": "after",
+            "status": "In Progress",
+        }
+    ]
 
 
 @pytest.mark.parametrize("status", STATUSES)
