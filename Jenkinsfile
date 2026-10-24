@@ -55,14 +55,10 @@ pipeline {
 
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-push',
-                                                  usernameVariable: 'DH_USER',
-                                                  passwordVariable: 'DH_PASS')]) {
-                    bat 'powershell -NoProfile -NonInteractive -Command "$env:DH_PASS | docker login --username $env:DH_USER --password-stdin; exit $LASTEXITCODE"'
-                    script {
-                        for (v in ['v1', 'v2', 'v3']) {
-                            bat "docker push %DOCKERHUB_USER%/%IMAGE_NAME%:${v}"
-                        }
+                echo 'Using Docker Hub login configured for the Jenkins Windows account.'
+                script {
+                    for (v in ['v1', 'v2', 'v3']) {
+                        bat "docker push %DOCKERHUB_USER%/%IMAGE_NAME%:${v}"
                     }
                 }
             }

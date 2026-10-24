@@ -9,4 +9,4 @@
 Folders: v1/ v2/ v3/ (app.py, templates/index.html, test_app.py, requirements.txt, Dockerfile), k8s/ (deployment-v1.yml, service-v1.yml, and the same for v2 and v3), Jenkinsfile.
 The Jenkinsfile and Kubernetes deployments are configured to use the Docker Hub account `tanp77`.
 The Jenkins agent must run as the Windows user `pondh` or have access to the kubeconfig at `C:\Users\pondh\.kube\config`.
-In Jenkins, configure a Username with password credential with ID `dockerhub-push`, username `tanp77`, and a Docker Hub access token with Read & Write permission.
+Before running Jenkins, log in to Docker Hub as `tanp77` from the same Windows account that runs the Jenkins agent. The pipeline uses that account's Docker CLI credentials when pushing the images.
