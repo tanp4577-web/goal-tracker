@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goal-v2
+  labels:
+    app: goal-tracker
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goal-tracker
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: goal-tracker
+        version: v2
+    spec:
+      containers:
+        - name: goal-tracker
+          image: tanp77/goal-tracker:v2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
