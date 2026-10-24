@@ -58,7 +58,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-push',
                                                   usernameVariable: 'DH_USER',
                                                   passwordVariable: 'DH_PASS')]) {
-                    bat 'echo %DH_PASS%| docker login -u %DH_USER% --password-stdin'
+                    bat 'powershell -NoProfile -NonInteractive -Command "$env:DH_PASS | docker login --username $env:DH_USER --password-stdin; exit $LASTEXITCODE"'
                     script {
                         for (v in ['v1', 'v2', 'v3']) {
                             bat "docker push %DOCKERHUB_USER%/%IMAGE_NAME%:${v}"
