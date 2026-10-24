@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_USER = 'tanp77'
         IMAGE_NAME     = 'goal-tracker'
+        KUBECONFIG     = 'C:\\Users\\pondh\\.kube\\config'
     }
 
     stages {

@@ -8,3 +8,4 @@
 
 Folders: v1/ v2/ v3/ (app.py, templates/index.html, test_app.py, requirements.txt, Dockerfile), k8s/ (deployment-v1.yml, service-v1.yml, and the same for v2 and v3), Jenkinsfile.
 The Jenkinsfile and Kubernetes deployments are configured to use the Docker Hub account `tanp77`.
+The Jenkins agent must run as the Windows user `pondh` or have access to the kubeconfig at `C:\Users\pondh\.kube\config`.
